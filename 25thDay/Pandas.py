@@ -2,8 +2,6 @@ import pandas
 
 data = pandas.read_csv("25thDay\Weather_data.csv")
 
-print(data["condition"])
+print(data["temp"].mean())
 
-data_dict = data.to_dict()
-
-print(data_dict)
+print(data["temp"].max())
