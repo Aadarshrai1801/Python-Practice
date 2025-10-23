@@ -28,14 +28,18 @@ while game_is_on :
     answer_state = (screen.textinput(title = f"{i}/50 States Correct", prompt = "What is another state's name?")).title()
 
     if answer_state == "Exit" :
-        missing_states = []
+        # missing_states = []
 
-        for state in state_list :
-            if state not in guessed_states :
-                missing_states.append(state)
+        # for state in state_list :
+        #     if state not in guessed_states :
+        #         missing_states.append(state)
+                
+        missing_states = [state for state in state_list if state not in guessed_states]
+        
+        print(missing_states)        
 
         new_data = pandas.DataFrame(missing_states)  
-        new_data.to_csv("RemainingStates.csv")  
+        new_data.to_csv("25thDay\RemainingStates.csv")  
         break
     
     if answer_state in state_list:
