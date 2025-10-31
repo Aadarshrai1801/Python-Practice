@@ -8,6 +8,8 @@ import random
 
 import pyperclip
 
+import json
+
 # PASSWORD GENERATOR 
 
 def generate_password() :
@@ -37,17 +39,56 @@ def generate_password() :
 
 def save_password():
     
-    if len(website_entry.get()) == 0 or len(username_entry.get()) == 0 or len(password_entry.get()) == 0 :
+    website = website_entry.get()
+    email = username_entry.get()
+    password = password_entry.get()
+    
+    new_data = {
+        website : {
+            "email" : email,
+            "password" : password
+        }
+    }
+    
+    if len(website) == 0 or len(email) == 0 or len(password) == 0 :
         messagebox.showinfo(title = "Error", message = "You have left any field empty.")
     
     else :
-        is_ok = messagebox.askokcancel(title = f"{website_entry.get()}", message = f"These are the details entered: \nEmail: {username_entry.get()}"f"\nPassword: {password_entry.get()} \nis it ok to save?")
-        
-        if is_ok :
-            with open("29thDay/Passwords.txt", "a") as file:
-                file.write(f"{website_entry.get()} | {username_entry.get()} | {password_entry.get()}\n")
-                website_entry.delete(0, END)
-                password_entry.delete(0, END)  
+        try :
+            with open("29thDay/Passwords.json", "r") as data_file:
+                # Reading old data
+                data = json.load(data_file)
+        except FileNotFoundError :
+            with open("29thDay/Passwords.json", "w") as data_file :
+                json.dump(new_data, data_file, indent = 4)        
+        else :    
+            # Updating old data with new data
+            data.update(new_data)
+            
+            with open("29thDay/Passwords.json", "w") as data_file :
+                json.dump(data, data_file, indent = 4)
+                 
+        finally :
+            website_entry.delete(0, END)
+            password_entry.delete(0, END)          
+                
+# LOAD PASSWORDS
+
+def load_pass() :
+    website = website_entry.get()
+    try :
+        with open("29thDay/Passwords.json", "r") as file :
+            data1 = json.load(file)
+    except FileNotFoundError :
+        messagebox.showinfo(title = "Error", message = "No Data File Found.")
+    else:
+        if website in data1 :
+            messagebox.showinfo(
+                title=website,
+                message = f"Email: {data1[website]['email']}\nPassword: {data1[website]['password']}"
+            )
+        else :
+            messagebox.showinfo(title="Error", message=f"No details for {website} exist.")
 
 # UI SETUP
 
@@ -77,8 +118,8 @@ password_label.grid(row = 3, column = 0)
 
     # Entries
     
-website_entry = Entry(width = 35)  
-website_entry.grid(row = 1, column = 1, columnspan = 2)
+website_entry = Entry(width = 30)  
+website_entry.grid(row = 1, column = 1)
 website_entry.focus()
 
 username_entry = Entry(width = 35)
@@ -96,5 +137,7 @@ generate_button.grid(row = 3, column = 2)
 add_button = Button(text = "Add", width = 36, command = save_password)  
 add_button.grid(row = 4, column = 1, columnspan = 2)  
 
+search_button = Button(text = "Search", width = 15, command = load_pass)
+search_button.grid(row = 1, column = 2)
 
 window.mainloop()
